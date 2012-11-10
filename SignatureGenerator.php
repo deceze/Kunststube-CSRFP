@@ -59,7 +59,7 @@ class SignatureGenerator {
     public function validateSignature($signatureToken) {
         $args = explode(':', $signatureToken);
         if (count($args) != 3) {
-            throw new \InvalidArgumentException("'$signature' is not a valid signature format");
+            throw new \InvalidArgumentException("'$signatureToken' is not a valid signature format");
         }
         
         list($timestamp, $token, $signature) = $args;
