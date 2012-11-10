@@ -94,14 +94,16 @@ class SignatureGeneratorTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testReinstantiatedValidationFailWithData() {
-		$sg1 = new SignatureGenerator($this->secret());
+		$secret = $this->secret();
+		
+		$sg1 = new SignatureGenerator($secret);
 		$sg1->addValue('foo');
 		$sg1->addKeyValue('bar', 'baz');
 		
 		$signature = $sg1->getSignature();
 		$fakeSignature = str_rot13($signature);
 
-		$sg2 = new SignatureGenerator($this->secret());
+		$sg2 = new SignatureGenerator($secret);
 		$sg2->addValue('foo');
 		$sg2->addKeyValue('bar', 'baz');
 
@@ -129,6 +131,48 @@ class SignatureGeneratorTest extends PHPUnit_Framework_TestCase {
 		$signature = $sg->getSignature();
 		$sg->setValidityWindow(0);
 		$this->assertTrue($sg->validateSignature($signature));
+	}
+
+	public function testTimestampFutzingFail() {
+		$sg = new SignatureGenerator($this->secret());
+		$signature = $sg->getSignature();
+		$this->assertStringMatchesFormat('%d%s', $signature);
+		
+		$fakeSignature = preg_replace('/^\d+/', time() + 1000, $signature);
+		$sg->setValidityWindow(time() + 100);
+		$this->assertFalse($sg->validateSignature($fakeSignature));
+	}
+
+	public function testOrderOfAddedData() {
+		$secret = $this->secret();
+
+		$sg1 = new SignatureGenerator($secret);
+		$sg1->addValue('foo');
+		$sg1->addValue('bar');
+		$sg1->addKeyValue('baz', 42);
+		
+		$sg2 = new SignatureGenerator($secret);
+		$sg2->addKeyValue('baz', 42);
+		$sg2->addValue('bar');
+		$sg2->addValue('foo');
+
+		$this->assertTrue($sg2->validateSignature($sg1->getSignature()));
+	}
+
+	public function testSameDataDifferentSignature() {
+		$secret = $this->secret();
+
+		$sg1 = new SignatureGenerator($secret);
+		$sg1->addValue('foo');
+		$sg1->addValue('bar');
+		$sg1->addKeyValue('baz', 42);
+
+		$sg2 = new SignatureGenerator($secret);
+		$sg2->addValue('foo');
+		$sg2->addValue('bar');
+		$sg2->addKeyValue('baz', 42);
+
+		$this->assertNotEquals($sg1->getSignature(), $sg2->getSignature());
 	}
 
 }
