@@ -1,0 +1,20 @@
+{
+    "name": "kunststube/csrfp",
+    "description": "A signed token generator for cross site request forgery protection.",
+    "keywords": ["csrf", "token"],
+    "homepage": "https://github.com/deceze/Kunststube-CSRFP",
+    "authors": [
+        {
+            "name": "David Zentgraf",
+            "email": "csrfp@kunststube.net",
+            "homepage": "http://kunststube.net"
+        }
+    ],
+    "autoload": {
+        "psr-0": { "Kunststube\\CSRFP": "" }
+    },
+    "require": {
+        "php": ">=5.3.0"
+    },
+    "target-dir": "Kunststube/CSRFP"
+}
