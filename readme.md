@@ -79,6 +79,7 @@ For example, when generating the token:
     $signer->addKeyValue('userid', $_SESSION['User']['id']);
     
     // including names of valid form fields in signature
+    $signer->addValue('_token');
     $signer->addValue('firstname');
     $signer->addValue('lastname');
 ?>
@@ -102,10 +103,6 @@ $signer->addKeyValue('userid', $_SESSION['User']['id']);
 
 // including submitted form fields in signature validation
 foreach (array_keys($_POST) as $key) {
-    // not adding '_token' itself
-    if ($key == '_token') {
-        continue;
-    }
     $signer->addValue($key);
 }
 
