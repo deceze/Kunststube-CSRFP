@@ -20,7 +20,7 @@ class CryptoProvider implements ICryptoProvider {
         static $sources = array('/dev/urandom', '/dev/random');
 
         foreach ($sources as $source) {
-            if (is_readable($source)) {
+            if (@is_readable($source)) {
                 return bin2hex(file_get_contents($source, false, null, -1, $length / 2));
             }
         }
