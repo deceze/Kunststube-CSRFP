@@ -8,6 +8,10 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'ICryptoProvider.php';
 class CryptoProvider implements ICryptoProvider {
 
     public function getRandomHexString($length) {
+        // `random_bytes()` is available in PHP 7+. more performant and platform independent than subsequent generators
+        if (function_exists('random_bytes')) {
+            return bin2hex(random_bytes($length / 2));
+        }
         try {
             return $this->getRandomHexStringFromDevRandom($length);
         } catch (\RuntimeException $e) {
@@ -21,6 +25,9 @@ class CryptoProvider implements ICryptoProvider {
 
         foreach ($sources as $source) {
             if (@is_readable($source)) {
+                // NOTE: the following line produces an error in PHP 7+ related to the offset value. reference
+                // documentation notes that remote files cannot seek, so it seems that since PHP 7.0, `/dev/urandom`
+                // is considered a remote file.
                 return bin2hex(file_get_contents($source, false, null, -1, $length / 2));
             }
         }
